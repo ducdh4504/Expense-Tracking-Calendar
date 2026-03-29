@@ -1,14 +1,15 @@
-import { View, Text, TextInput, Button } from 'react-native';
-import { useState } from 'react';
-import { saveExpense } from '../../services/StorageService';
 import * as ImagePicker from 'expo-image-picker';
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import { Button, Text, TextInput, View } from 'react-native';
+import { saveExpense } from '../../services/StorageService';
 
-export default function AddExpenseScreen({ navigation }: any) {
+export default function AddExpenseScreen() {
+    const router = useRouter();
     const [amount, setAmount] = useState('');
     const [note, setNote] = useState('');
     const [title, setTitle] = useState('');
     const [image, setImage] = useState<string | null>(null);
-
 
     const pickImage = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
@@ -20,6 +21,7 @@ export default function AddExpenseScreen({ navigation }: any) {
             setImage(result.assets[0].uri);
         }
     };
+
     const handleSave = async () => {
         const newExpense = {
             id: Date.now().toString(),
@@ -32,8 +34,8 @@ export default function AddExpenseScreen({ navigation }: any) {
         };
 
         await saveExpense(newExpense);
-
-        navigation.goBack();
+        
+        router.back(); 
     };
 
     return (
@@ -42,7 +44,7 @@ export default function AddExpenseScreen({ navigation }: any) {
             <TextInput
                 value={title}
                 onChangeText={setTitle}
-                style={{ borderWidth: 1, marginBottom: 10 }}
+                style={{ borderWidth: 1, marginBottom: 10, padding: 8 }}
             />
 
             <Text>Amount:</Text>
@@ -50,19 +52,20 @@ export default function AddExpenseScreen({ navigation }: any) {
                 value={amount}
                 onChangeText={setAmount}
                 keyboardType="numeric"
-                style={{ borderWidth: 1, marginBottom: 10 }}
+                style={{ borderWidth: 1, marginBottom: 10, padding: 8 }}
             />
 
             <Text>Note:</Text>
             <TextInput
                 value={note}
                 onChangeText={setNote}
-                style={{ borderWidth: 1, marginBottom: 10 }}
+                style={{ borderWidth: 1, marginBottom: 10, padding: 8 }}
             />
 
             <Button title="Pick Image" onPress={pickImage} />
-
-            <Button title="Save" onPress={handleSave} />
+            <View style={{ marginTop: 20 }}>
+                <Button title="Save" onPress={handleSave} />
+            </View>
         </View>
     );
 }

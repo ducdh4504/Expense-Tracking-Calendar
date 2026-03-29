@@ -1,10 +1,11 @@
-import { View, Text, Button, FlatList } from 'react-native';
-import { useEffect, useState } from 'react';
-import { getExpenses } from '../../services/StorageService';
+import { Link, useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { FlatList, Text, View } from 'react-native';
 import { Expense } from '../../models/Expense';
-import { Image } from 'react-native';
+import { getExpenses } from '../../services/StorageService';
 
-export default function HomeScreen({ navigation }: any) {
+export default function HomeScreen() {
+    const router = useRouter(); 
     const [expenses, setExpenses] = useState<Expense[]>([]);
 
     const loadData = async () => {
@@ -12,28 +13,42 @@ export default function HomeScreen({ navigation }: any) {
         setExpenses(data);
     };
 
-    useEffect(() => {
-        const unsubscribe = navigation.addListener('focus', loadData);
-        return unsubscribe;
-    }, [navigation]);
+    useFocusEffect(
+        useCallback(() => {
+            loadData();
+        }, [])
+    );
 
     return (
         <View style={{ marginTop: 50 }}>
-            <Text>Home Screen</Text>
+            <Text style={{ fontSize: 24, fontWeight: 'bold', padding: 10 }}>Home Screen</Text>
 
-            <Button
+            {/* <Button
                 title="Go to Add Expense"
-                onPress={() => navigation.navigate('AddExpense')}
-            />
+                onPress={() => router.push('/add-expense')}
+            /> */}
+            <Link 
+                href="/add-expense" 
+                style={{ 
+                    backgroundColor: '#007AFF', 
+                    color: 'white', 
+                    padding: 15, 
+                    textAlign: 'center', 
+                    margin: 10,
+                    borderRadius: 8,
+                    fontWeight: 'bold'
+                }}
+            >
+                Go to Add Expense
+            </Link>
             <FlatList
                 data={expenses}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
-                    <View style={{ padding: 10 }}>
+                    <View style={{ padding: 10, borderBottomWidth: 1, borderColor: '#ccc' }}>
                         <Text>
                             {item.amount} - {item.note}
                         </Text>
-
                         <Text>
                             {new Date(item.date).toLocaleDateString()}
                         </Text>

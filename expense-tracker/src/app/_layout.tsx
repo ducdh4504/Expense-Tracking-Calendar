@@ -1,16 +1,18 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import React from 'react';
-import { useColorScheme } from 'react-native';
+import { Stack } from 'expo-router';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
-  );
+export default function RootLayout() {
+    return (
+        <Stack>
+            {/* Cấu hình cho trang chủ (index.tsx) */}
+            <Stack.Screen 
+                name="index" 
+                options={{ title: 'Trang chủ', headerShown: false }} 
+            />
+            {/* Cấu hình cho trang thêm chi tiêu (add-expense.tsx) */}
+            <Stack.Screen 
+                name="add-expense" 
+                options={{ title: 'Thêm chi tiêu', presentation: 'modal' }} 
+            />
+        </Stack>
+    );
 }
