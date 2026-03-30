@@ -1,8 +1,8 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import AddExpenseScreen from './src/screens/AddExpense/AddExpenseScreen';
 import HomeScreen from './src/screens/HomeScreen/HomeScreen';
-import AddExpenseScreen from './src/screens/HomeScreen/AddExpenseScreen';
 
 const Stack = createNativeStackNavigator();
 

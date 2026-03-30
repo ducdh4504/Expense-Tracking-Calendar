@@ -2,7 +2,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Button, Text, TextInput, View } from 'react-native';
-import { saveExpense } from '../../services/StorageService';
+import { saveExpense, uploadImageToCloudinary } from '../../services/StorageService';
 
 export default function AddExpenseScreen() {
     const router = useRouter();
@@ -10,6 +10,17 @@ export default function AddExpenseScreen() {
     const [note, setNote] = useState('');
     const [title, setTitle] = useState('');
     const [image, setImage] = useState<string | null>(null);
+    const [isSaving, setIsSaving] = useState(false);
+
+    const formatCurrency = (value: string) => {
+        const number = value.replace(/\D/g, '');
+        return new Intl.NumberFormat('vi-VN').format(Number(number));
+    };
+
+    const handleAmountChange = (text: string) => {
+        const raw = text.replace(/\D/g, '');
+        setAmount(formatCurrency(raw));
+    };
 
     const pickImage = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
@@ -23,19 +34,43 @@ export default function AddExpenseScreen() {
     };
 
     const handleSave = async () => {
-        const newExpense = {
-            id: Date.now().toString(),
-            title: title,
-            amount: Number(amount),
-            note,
-            location: '',
-            date: new Date().toISOString(),
-            imageUri: image || '',
-        };
+        if (!title || !amount) {
+            alert("Vui lòng nhập tiêu đề và số tiền!");
+            return;
+        }
 
-        await saveExpense(newExpense);
-        
-        router.back(); 
+        setIsSaving(true);
+        try {
+            let finalImageUri = '';
+
+            if (image) {
+                console.log("Bắt đầu upload ảnh...");
+                const uploadedUrl = await uploadImageToCloudinary(image);
+                if (uploadedUrl) {
+                    finalImageUri = uploadedUrl;
+                }
+            }
+
+            const newExpense = {
+                id: Date.now().toString(),
+                title: title,
+                amount: Number(amount.replace(/\D/g, '')),
+                note,
+                location: '',
+                date: new Date().toISOString(),
+                imageUri: finalImageUri, 
+            };
+
+            await saveExpense(newExpense);
+
+            router.back();
+
+        } catch (error) {
+            console.error("Lỗi khi lưu dữ liệu:", error);
+            alert("Đã xảy ra lỗi khi lưu. Vui lòng thử lại!");
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -50,7 +85,7 @@ export default function AddExpenseScreen() {
             <Text>Amount:</Text>
             <TextInput
                 value={amount}
-                onChangeText={setAmount}
+                onChangeText={handleAmountChange}
                 keyboardType="numeric"
                 style={{ borderWidth: 1, marginBottom: 10, padding: 8 }}
             />
